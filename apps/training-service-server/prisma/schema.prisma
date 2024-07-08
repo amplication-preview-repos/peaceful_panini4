@@ -1,0 +1,68 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Exercise {
+  id           String            @id @default(cuid())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  training     Training?         @relation(fields: [trainingId], references: [id])
+  trainingId   String?
+  user         User?             @relation(fields: [userId], references: [id])
+  userId       String?
+  resultWeight Decimal?
+  reps         Int?
+  sets         Int?
+  weight       Decimal?
+  tempateId    ExerciseTemplate? @relation(fields: [tempateIdId], references: [id])
+  tempateIdId  String?           @unique
+}
+
+model Training {
+  id          String              @id @default(cuid())
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  description String?
+  userId      User?               @relation(fields: [userIdId], references: [id])
+  userIdId    String?             @unique
+  name        String?
+  exercises   Exercise[]
+  status      EnumTrainingStatus?
+}
+
+model User {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  firstName String?
+  lastName  String?
+  username  String     @unique
+  email     String?    @unique
+  password  String
+  roles     Json
+  trainings Training?
+  exercises Exercise[]
+}
+
+model ExerciseTemplate {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  description String
+  name        String    @unique
+  image       String?
+  video       String?
+  exercises   Exercise?
+}
+
+enum EnumTrainingStatus {
+  Pending
+  Progress
+  Completed
+  Deleted
+}
